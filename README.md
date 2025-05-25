@@ -60,17 +60,18 @@ Options courantes:
 | `--figsize`                        | Taille de la figure de sortie (défaut : 4)                                |
 | `--min_distance`                   | Distance minimale entre deux points (défaut : 1e-3)                       |
 
+
 Options avancées:
 
-| Option                                 | Description                                                               |
-|----------------------------------------|---------------------------------------------------------------------------|
-| `--puissance_contraste`                | Accentuation du contraste de la densité (défaut : 1)                      |
-| `--influence_densite_initialisation`   | Influence de la densité pour le placement initial (défaut : 1)            |
-| `--densite_centroide`                  | Influence de la densité dans le calcul des centroïdes (défaut : 2.5)      |
+| Option                                 | Description                                                           |
+|----------------------------------------|-----------------------------------------------------------------------|
+| `--puissance_contraste`                | Accentuation du contraste de la densité (défaut :1)                   |
+| `--influence_densite_initialisation`   | Influence de la densité pour le placement initial (défaut : 1)        |
+| `--densite_centroide`                  | Influence de la densité dans le calcul des centroïdes (défaut : 1)    |
 
 Exemple Utilisation avancée:
 
-python stippling_script.py photo.jpg --nb_points 10000 --affichage_intermediaire --densite_centroide 3
+python stippling_weighted_centroidal_voronoi_diagramm.py photo.jpg --nb_points 10000 --affichage_intermediaire --densite_centroide 3
 
 Tous ces paramètres peuvent être aussi rensignée dans la liste de paramètres par défaut default en début du main (ligne 92)
 
@@ -80,15 +81,28 @@ Les fichiers de sortie sont enregistrés dans le dossier `resultats/stippling` s
 - `image-stipple_densite.pdf`
 - `image-stipple_densite.png`
 
+
+Exemples de lignes de commande pour obtenir les résultats de notre présentation:
+
+- python stippling_weighted_centroidal_voronoi_diagramm.py images/figure.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (12.0, 12.0) --affichage_intermediaire --densite_centroide 2 --figsize 5.12 --min_distance 2e-3
+
+- python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (10.0, 10.0) --affichage_intermediaire --densite_centroide 1.5 --figsize 13.0 --min_distance 5e-3
+
+- python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 5000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (7.0, 7.0) --affichage_final --densite_centroide 1.3 --figsize 13.0 --min_distance 3e-3
+
+- python stippling_weighted_centroidal_voronoi_diagramm.py images/plant4h.png --nb_points 20000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 90 --taille_points (6.0, 6.0) --affichage_final --densite_centroide 1.5 --figsize 9.6 --min_distance 1.5e-3
+
 # Fast Stipplings
 
 Cette section décrit une méthode rapide de pointillisme utilisant des heuristiques et des approximations pour générer des diagrammes de Voronoï centroïdaux sans itérations coûteuses, ce qui permet de produire des résultats visuellement satisfaisants avec un temps de calcul réduit.
 
 Deux variantes principales sont proposées :
 
-1. **Grille hexagonale avec perturbation aléatoire** :
-   - Permet une distribution plus régulière des points.
+1. **Grille en fonction du niveau de gris calculé à partir de la relaxation de Lloyd** :
+   - Permet une distribution régulière des points.
    - Convient bien aux zones uniformes.
+   - Correspond à la méthode proposée dans le sujet.
+   - Mauvaise gestion de bord.
 
 2. **Distribution uniforme aléatoire** :
    - Plus rapide à générer.
@@ -96,20 +110,20 @@ Deux variantes principales sont proposées :
 
 ### Visualisation des niveaux
 
-Un échantillon des 256 niveaux pré-calculés peut être affiché avec le script hexagon_grid_levels.py pour validation visuelle.  
+Un échantillon de 9 niveaux pré-calculés de gris peut être affiché avec le script grid_levels.py pour validation visuelle.  
 Les résultats sont sauvegardés automatiquement dans le dossier :
 
-resultats/fast_stippling/hexagon_grid_levels.png
+resultats/fast_stippling/grid_levels.png
 
-### Exemple d'utilisation selon la méthode utilisée (hexagone vs. uniform random).
+### Exemple d'utilisation selon la méthode utilisée (voronoi vs. uniform random).
 
-python fast_stippling_article.py (hexagon)
+python fast_stippling_voronoi.py (voronoi)
 ou
 python fast_stippling_upgrade.py (uniform random)
 
 Le résultat sera sauvegardé en fonction de l'image source sous le nom :
 
-resultats/fast_stippling/fast_stippling_article_<nom>.png
+resultats/fast_stippling/fast_stippling_voronoi_<nom>.png
 ou
 resultats/fast_stippling/fast_stippling_upgrade_<nom>.png
 

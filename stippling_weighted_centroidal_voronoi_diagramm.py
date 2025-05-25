@@ -68,7 +68,7 @@ if __name__ == '__main__':
         "affichage_final": True,
         "puissance_contraste": 1,
         "influence_densite_initialisation": 1,
-        "densite_centroide": 2,
+        "densite_centroide": 1,
         "figsize": 9.6,
         "min_distance":1.5e-3,
     }
