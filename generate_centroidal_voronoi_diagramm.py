@@ -102,7 +102,7 @@ def lloyd_relaxation(points, max_iter=10, seuil_convergence=1e-5, boundary=None)
 
         if movement_moyen < seuil_convergence:
             #print(f"Convergence atteinte après {iteration+1} itérations")
-            converegence = False
+            non_convergence = False
         
         iteration+=1
     
