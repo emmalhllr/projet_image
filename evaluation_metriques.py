@@ -1,36 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
-from skimage.metrics import structural_similarity as ssim, peak_signal_noise_ratio as psnr
-from scipy.spatial import Voronoi, cKDTree
-from shapely.geometry import Polygon
-
+from skimage.metrics import structural_similarity as ssim
 from skimage import img_as_ubyte
 from scipy.stats import pearsonr
 import mahotas
 from scipy.ndimage import gaussian_filter
 
-# Métriques existantes
-def compute_mse(img1, img2):
-    return np.mean((img1 - img2) ** 2)
-
-def compute_ssim(img1, img2):
-    return ssim(img1, img2, data_range=img2.max() - img2.min())
-
-def compute_chamfer_distance(points_a, points_b):
-    
-    tree_b = cKDTree(points_b)
-    tree_a = cKDTree(points_a)
-
-    distances_a_to_b, _ = tree_b.query(points_a)
-    distances_b_to_a, _ = tree_a.query(points_b)
-
-    forward = np.mean(distances_a_to_b)
-    backward = np.mean(distances_b_to_a)
-
-    return (forward + backward) / 2
-
-def compute_texture_correlation(img1, img2, distances=[1], angles=[0]):
+def compute_texture_correlation(img1, img2):
     img1 = img_as_ubyte(img1)
     img2 = img_as_ubyte(img2)
     
@@ -46,25 +23,6 @@ def compute_texture_correlation(img1, img2, distances=[1], angles=[0]):
     corr, _ = pearsonr(contrast1, contrast2)
     
     return corr
-
-# Visualisation de l'erreur avec une Heatmap
-def plot_error_heatmap(img1, img2, title="Erreur absolue (heatmap)"):
-    error = np.abs(img1 - img2)
-    plt.figure(figsize=(10, 8))
-    plt.imshow(error, cmap='hot')
-    plt.colorbar(label="Erreur")
-    plt.title(title)
-    plt.axis('off')
-    return error
-
-# --------------------------------- NOUVELLES FONCTIONS ---------------------------------
-
-def rasterize_stippling(stippling_points, shape):
-    raster = np.zeros(shape)
-    for x, y in stippling_points:
-        if 0 <= y < shape[0] and 0 <= x < shape[1]:  
-            raster[int(y), int(x)] = 1.0
-    return raster
 
 def compute_point_density_map(stippling_points, shape, sigma=5):
     point_image = np.zeros(shape)
@@ -149,17 +107,12 @@ def compute_local_comparison(ref_img, density_map, window_size=15):
     # Visualiser la carte d'erreur locale
     plt.figure(figsize=(15, 5))
     
-    plt.subplot(1, 3, 1)
+    plt.subplot(1, 2, 1)
     plt.imshow(ref_local_means, cmap='gray')
     plt.title("Moyennes locales (image originale)")
     plt.axis('off')
     
-    plt.subplot(1, 3, 2)
-    plt.imshow(density_local_means, cmap='gray')
-    plt.title("Moyennes locales (image stippling)")
-    plt.axis('off')
-    
-    plt.subplot(1, 3, 3)
+    plt.subplot(1, 2, 2)
     plt.imshow(local_error_map, cmap='hot')
     plt.colorbar(label="Erreur locale")
     plt.title(f"Carte d'erreur locale (MAE: {local_mae:.4f}, MSE: {local_mse:.4f})")
@@ -170,10 +123,7 @@ def compute_local_comparison(ref_img, density_map, window_size=15):
     return local_error_map, local_mse, local_mae
 
 def compute_local_ssim_map(ref_img, density_map, win_size=11):
-    """Calcule une carte de SSIM locale entre l'image originale et la carte de densité"""
-    # Inverser l'image de référence
-    #ref_img_inv = 1 - ref_img
-    
+
     # Calculer la carte SSIM
     try:
         ssim_value, ssim_map = ssim(
@@ -210,36 +160,81 @@ def compute_local_ssim_map(ref_img, density_map, win_size=11):
     
     return ssim_map, ssim_value
 
+# Code de diagnostic
+def debug_image_processing(image_path, stipple_path):
+    # Charger les images
+    original = io.imread(image_path, as_gray=True)
+    stipple = io.imread(stipple_path, as_gray=True)
+    
+    # Informations de base sur les images
+    print(f"Image originale: min={original.min()}, max={original.max()}, moyenne={original.mean()}")
+    print(f"Image stippling: min={stipple.min()}, max={stipple.max()}, moyenne={stipple.mean()}")
+    
+    # Histogrammes bruts (sans normalisation)
+    plt.figure(figsize=(12, 5))
+    plt.subplot(1, 2, 1)
+    plt.hist(original.flatten(), bins=50, alpha=0.7, label='Original')
+    plt.title("Histogramme image originale")
+    plt.legend()
+    
+    plt.subplot(1, 2, 2)
+    plt.hist(stipple.flatten(), bins=50, alpha=0.7, label='Stipple')
+    plt.title("Histogramme image stippling")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+    
+    # Extraction des points avec différents seuils
+    thresholds = [0.1, 0.3, 0.5, 0.7, 0.9]
+    fig, axes = plt.subplots(1, len(thresholds), figsize=(15, 3))
+    
+    for i, threshold in enumerate(thresholds):
+        points = np.argwhere(stipple > threshold)
+        axes[i].imshow(stipple > threshold, cmap='gray')
+        axes[i].set_title(f"Seuil > {threshold}\n{len(points)} points")
+        axes[i].axis('off')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Générer des cartes de densité avec différents sigmas
+    sigmas = [1, 3, 5, 8, 12]
+    fig, axes = plt.subplots(1, len(sigmas), figsize=(15, 3))
+    
+    points = np.argwhere(stipple > 0.5)[:, [1, 0]]  # x, y
+    
+    for i, sigma in enumerate(sigmas):
+        density = compute_point_density_map(points, original.shape, sigma=sigma)
+        axes[i].imshow(density, cmap='gray')
+        axes[i].set_title(f"Sigma = {sigma}")
+        axes[i].axis('off')
+    
+    plt.tight_layout()
+    plt.show()
+
 ###############################################################################################################
 #################################### CHARGEMENT DES IMAGES ####################################################
 ###############################################################################################################
 
-ref_img_path = 'images/figure.png'
-stippling_img_path = 'resultats/stippling/figure-stipple_densite.png'
+ref_img_path = 'images/shoe_1300x1300_org.png'
+stippling_img_path = 'resultats/fast_stippling/fast_stippling_upgrade_shoe_1300x1300_org.png'
 
 reference_image = io.imread(ref_img_path, as_gray=True)
 stippling_image = io.imread(stippling_img_path, as_gray=True)
 
 shape = reference_image.shape
 
+
+reference_image = (reference_image - reference_image.min()) / (reference_image.max() - reference_image.min())
+
 # Extraire les points de stippling de l'image
-stippling_points = np.argwhere(stippling_image > 0.5)[:, [1, 0]]  # [x, y]
-
-print(f"Nombre de points de stippling: {len(stippling_points)}")
-
-# ------------------------------------ MÉTRIQUES EXISTANTES ------------------------------------
-
-mse_value = compute_mse(reference_image, stippling_image)
-ssim_value = compute_ssim(reference_image, stippling_image)
-chamfer_dist = compute_chamfer_distance(
-    np.argwhere(reference_image > 0.5)[:1000], np.argwhere(stippling_image > 0.5)[:1000]  # Limité pour performance
-)
-texture_correlation = compute_texture_correlation(reference_image, stippling_image)
-
-# ------------------------------------ NOUVELLES MÉTRIQUES ------------------------------------
+stippling_points = np.argwhere(stippling_image > 0.95)[:, [1, 0]]
 
 # Générer une carte de densité à partir des points de stippling
-density_map = compute_point_density_map(stippling_points, shape, sigma=5)
+density_map = compute_point_density_map(stippling_points, shape, sigma=4.0)
+
+#Correlation
+texture_correlation = compute_texture_correlation(reference_image, density_map)
 
 # Comparaison des histogrammes
 hist_diff, hist_ref, hist_density = compute_histograms_comparison(reference_image, density_map, n_bins=50)
@@ -247,43 +242,20 @@ hist_diff, hist_ref, hist_density = compute_histograms_comparison(reference_imag
 # Comparaison locale
 local_error_map, local_mse, local_mae = compute_local_comparison(reference_image, density_map, window_size=15)
 
-try:
-    # Calcul de la carte SSIM locale
-    ssim_map, local_ssim_value = compute_local_ssim_map(reference_image, density_map, win_size=11)
-except Exception as e:
-    print(f"Avertissement: Impossible de calculer la carte SSIM locale: {e}")
-    print("Utilisation d'une valeur SSIM globale à la place.")
-    ssim_map = np.zeros_like(reference_image)
-    local_ssim_value = ssim_value  # Utiliser la valeur SSIM globale
-
-# Afficher l'erreur absolue globale entre l'image originale et la carte de densité
-ref_inv = 1 - reference_image
-global_error_map = plot_error_heatmap(ref_inv, density_map, title="Erreur absolue (image inversée vs densité)")
-
-# ------------------------------------ AFFICHAGE DES RÉSULTATS ------------------------------------
+# Calcul de la carte SSIM locale
+ssim_map, local_ssim_value = compute_local_ssim_map(reference_image, density_map, win_size=11)
 
 # Afficher visuellement la comparaison initiale
 plt.figure(figsize=(20, 5))
 
-plt.subplot(1, 4, 1)
+plt.subplot(1, 2, 1)
 plt.imshow(reference_image, cmap='gray')
 plt.title("Image originale")
 plt.axis('off')
 
-plt.subplot(1, 4, 2)
-plt.imshow(stippling_image, cmap='gray')
-plt.title("Image stippling rasterisée")
-plt.axis('off')
-
-plt.subplot(1, 4, 3)
+plt.subplot(1, 2, 2)
 plt.imshow(density_map, cmap='gray')
 plt.title("Carte de densité des points")
-plt.axis('off')
-
-plt.subplot(1, 4, 4)
-plt.imshow(reference_image, cmap='gray')
-plt.scatter(stippling_points[:, 0], stippling_points[:, 1], s=1, c='red', alpha=0.5)
-plt.title("Points de stippling sur l'image")
 plt.axis('off')
 
 plt.tight_layout()
@@ -292,13 +264,11 @@ plt.tight_layout()
 # Afficher les résultats numériques
 results = {
     "Métriques globales": {
-        "MSE": mse_value,
-        "SSIM": ssim_value,
-        "Chamfer Distance": chamfer_dist,
         "Corrélation de texture": texture_correlation,
-    },
-    "Nouvelles métriques": {
         "Différence d'histogrammes": hist_diff,
+    },
+    "Métriques locales": {
+        
         "MSE locale": local_mse,
         "MAE locale": local_mae,
         "SSIM locale moyenne": local_ssim_value

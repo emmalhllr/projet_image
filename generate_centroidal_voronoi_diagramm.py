@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import voronoi_plot_2d
 import matplotlib.animation as animation
 
+# Calcul des centroids uniforme sans tenir compte de la densité de l'image
 def compute_centroide(polygone):
 
     # On ferme le polygone 
@@ -39,10 +40,11 @@ def compute_centroide(polygone):
     
     return np.array([cx, cy])
 
-def lloyd_relaxation(points, max_iter=10,seuil_convergence=1e-5, boundary=None):
+# Application de la relaxation de Lloyd
+def lloyd_relaxation(points, max_iter=10, seuil_convergence=1e-5, boundary=None):
     
     points = np.array(points)
-    history = [points.copy()] # on initialise avec la première itération
+    history = [points.copy()] 
 
     iteration = 0
     non_convergence = True
@@ -106,6 +108,7 @@ def lloyd_relaxation(points, max_iter=10,seuil_convergence=1e-5, boundary=None):
     
     return points, history
 
+# Fonction pour visualiser les étapes de la relaxation de Llyod
 def visualize_lloyd(history, iterations=None, boundary=None,chemin_sauvegarde=''):
     
     # Créer la figure avec le bon nombre de sous-graphiques
@@ -137,6 +140,7 @@ def visualize_lloyd(history, iterations=None, boundary=None,chemin_sauvegarde=''
     plt.savefig(chemin_sauvegarde, dpi=300, bbox_inches='tight')
 
 
+# Fonction pour créer une animation et la sauvegarder en .gif
 def animate_lloyd(history, boundary=None, interval=500, save_path=None):
 
     if boundary:
@@ -199,6 +203,7 @@ def animate_lloyd(history, boundary=None, interval=500, save_path=None):
     
     return anim
 
+
 if __name__ == "__main__":
     
     ##############################################################
@@ -209,7 +214,6 @@ if __name__ == "__main__":
     taille_domaine = 100
     max_iter = 100
     seuil_convergence = 1e-5
-
 
     # Création des points de manière aléatoire
     initial_points = np.random.rand(nb_points, 2)*taille_domaine

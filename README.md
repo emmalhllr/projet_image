@@ -102,7 +102,7 @@ Deux variantes principales sont proposées :
    - Permet une distribution régulière des points.
    - Convient bien aux zones uniformes.
    - Correspond à la méthode proposée dans le sujet.
-   - Mauvaise gestion de bord.
+   - Mauvaise gestion des bords.
 
 2. **Distribution uniforme aléatoire** :
    - Plus rapide à générer.
