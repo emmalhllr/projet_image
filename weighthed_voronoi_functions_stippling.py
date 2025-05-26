@@ -5,6 +5,7 @@ from numba import njit, prange
 
 # Fonction qui retourne la liste des points contenues dans le polygone
 def points_contenus_polygone(polygone):
+
     # Vérifier si le polygone est vide
     if len(polygone) == 0:
         return np.array([])
@@ -18,7 +19,7 @@ def points_contenus_polygone(polygone):
     for y in range(ymin, ymax+1):
         segments = []
         for i in range(n):
-            index1, index2 = i, (i+1) % n  # Correction de l'indexation
+            index1, index2 = i, (i+1) % n
             y1, y2 = Y[index1], Y[index2]
             x1, x2 = X[index1], X[index2]
             if y1 > y2:
@@ -113,20 +114,24 @@ def centroide_pondere(polygone, densite_image):
     
     return centroide
 
-def compute_centroid_for_region(region, vertices, density):
-    # Calcul du centroïde pondéré pour une seule région (fonction isolée pour parallélisation)
+# Fonction pour parallélisation: Calcul du centroïde pondéré pour d'une région
+def compute_centroid_for_region(region, vertices, density): 
     polygon = vertices[region]
     return centroide_pondere(polygon, density)
 
+# Fonction qui permet de calculer l'ensemble des nouveaux centroids
 def compute_centroids(points, density, boundaries, min_distance=None, parallel=True, n_jobs=-1):
 
+    # Verifier que le "radius" est respecté
     if min_distance is not None:
         points = apply_point_repulsion(points, min_distance=min_distance)
 
+    # Diagramme de Voronoi
     vor = voronoi(points, boundaries)
     regions = vor.filtered_regions
     vertices = vor.vertices
 
+    # Lloyd relaxation
     if not parallel:
         centroids = [centroide_pondere(vertices[region], density) for region in regions]
     else:
@@ -138,7 +143,7 @@ def compute_centroids(points, density, boundaries, min_distance=None, parallel=T
     return regions, np.array(centroids)
 
 
-# Renvoie un bouleen pour chaque point pour savoir s'il appartient à l'image
+# Renvoie un booleen pour chaque point pour savoir s'il appartient à l'image
 @njit
 def appartient_image(points,dim_image):
     return np.logical_and(
@@ -146,11 +151,13 @@ def appartient_image(points,dim_image):
         np.logical_and(dim_image[2] <= points[:, 1], points[:, 1] <= dim_image[3])
     )
 
+# Calcul du diagramme de Voronoi sur l'image entière
 def voronoi(points, dim_image):
 
+    # Verifier que le point appartient bien à l'image
     appartient = appartient_image(points,dim_image)
 
-    # Gestion des frontières en mirroir
+    # Gestion des frontières en mirroir (seule solution vraiment probante dans notre cas)
     points_center = points[appartient,:]
     points_left = np.copy(points_center)
     points_left[:, 0] = dim_image[0] - (points_left[:, 0] - dim_image[0])
@@ -164,13 +171,10 @@ def voronoi(points, dim_image):
                        np.append(np.append(points_left, points_right, axis=0),
                                  np.append(points_down, points_up, axis=0),
                                  axis=0), axis=0)
-    # Compute Voronoi
-    vor = Voronoi(points)
-
-    iteration = 0
     
-    eps = 0.1
+    # Calcul de Voronoi
     vor = Voronoi(points)
+    eps = 0.1
     regions = []
 
     for region in vor.regions:
@@ -195,6 +199,7 @@ def voronoi(points, dim_image):
 
     return vor
 
+# Fonction pour respecter la force de répulsion soit le "radius" dans l'article
 @njit(parallel=True)
 def compute_repulsion_forces(points, min_dist, force_strength):
     n = points.shape[0]

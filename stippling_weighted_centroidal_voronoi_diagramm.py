@@ -28,6 +28,7 @@ def initialisation_points(nb_points, densite_image, rejection_power=1.0):
     points = np.empty((nb_points, 2), dtype=np.float32)
     i = 0
 
+    # Renforcement de la densité pour l'initialisation
     densite = densite_image ** rejection_power if rejection_power != 1.0 else densite_image
 
     while i < nb_points:
@@ -44,7 +45,7 @@ def initialisation_points(nb_points, densite_image, rejection_power=1.0):
 
     return points
 
-# Evolution du mouvement
+# Evolution du mouvement (critère d'arrêt)
 @njit(parallel=True)
 def mouvement_moyen(old_points, new_points):
     total = 0.0
@@ -107,7 +108,7 @@ if __name__ == '__main__':
     # On la met dans le bon sens
     densite_image = densite_image[::-1, :]
 
-    # Augmenter l'influence de la densité de l'image
+    # Augmenter l'influence de la densité de l'image si demandé
     if args.puissance_contraste!=1:
         densite_image = densite_image**args.puissance_contraste
 
@@ -172,7 +173,8 @@ if __name__ == '__main__':
         animation = FuncAnimation(fig, update, repeat=False, frames=args.max_iter - 1)
         plt.show()
 
-    # Pas d'affichage interactif
+
+    # Si on n'a pas d'affichage interactif -> affichage_final
     else:
         if args.densite_centroide != 1.0:
             densite_image = densite_image ** args.densite_centroide

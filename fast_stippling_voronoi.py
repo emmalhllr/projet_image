@@ -1,7 +1,6 @@
 import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
-from math import sqrt, ceil
 import cv2
 from grid_levels import generate_grid
 
@@ -9,10 +8,10 @@ from grid_levels import generate_grid
 ##############     CHOIX DES PARAMETRES   ####################
 ##############################################################
 
-PATCH_SIZE = 6  # Taille des patchs (en pixels) (l)
-MAX_STIPPLES = 20  # Nb de points pour le niveau noir (t=0)
-LEVELS = 80  # Nb de niveaux de gris
-STIPPLE_LIBRARY = {}  # Dictionnaire (niveau -> points)
+PATCH_SIZE = 6              # Taille des patchs (en pixels) (l)
+MAX_STIPPLES = 20           # Nb de points pour le niveau noir (t=0)
+LEVELS = 80                 # Nb de niveaux de gris
+STIPPLE_LIBRARY = {}        # Dictionnaire pour sauvegarder les patchs
 
 # Paramètres pour l'algorithme de relaxation de Lloyd
 max_iter = 100
@@ -45,6 +44,7 @@ def load_stipple_library(filepath=STIPPLE_FILE):
 
 # Stippling de l'image
 def render_stipple_image(img):
+
     H, W = img.shape
     result_points = []
 
@@ -57,11 +57,12 @@ def render_stipple_image(img):
             x2 = min(img.shape[1], x + PATCH_SIZE)
             patch = img[y1:y2, x1:x2]
 
+            # Trouver le niveau de stipple correspondant
             t = np.mean(patch) / 255.0  
-            level_index = int(t * (LEVELS - 1))  # Trouver le niveau de stipple correspondant
-            stipple_patch = STIPPLE_LIBRARY.get(level_index, np.empty((0, 2)))  # Récupérer les points de ce niveau
+            level_index = int(t * (LEVELS - 1))  
+            stipple_patch = STIPPLE_LIBRARY.get(level_index, np.empty((0, 2))) 
             
-            if stipple_patch.size > 0:  # Vérifier que stipple_patch n'est pas vide
+            if stipple_patch.size > 0:  
                 shifted = stipple_patch + np.array([x, y])  # Décalage des points selon la position du patch
                 result_points.append(shifted)
                 
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     image = cv2.imread(url_image, cv2.IMREAD_GRAYSCALE)
     image = (image).astype(np.uint8)
 
-    #Sauvegarde
+    # Sauvegarde
     name_image = url_image.split('/')[1].split('.')[0]
     url_sauvegarde = 'resultats/fast_stippling/fast_stippling_voronoi_'+name_image+'.png'
 

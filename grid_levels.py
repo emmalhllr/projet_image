@@ -1,8 +1,6 @@
 import tqdm
 import numpy as np
-import numpy as np
 import matplotlib.pyplot as plt
-from math import sqrt, ceil
 from generate_centroidal_voronoi_diagramm import lloyd_relaxation
 
 ##############################################################
@@ -18,7 +16,11 @@ max_iter = 100
 seuil_convergence = 1e-4
 
 
-# Génère un nuage de points répartis suivant des hexagones
+##############################################################
+###########     IMPLEMENTATION DES FONCTIONS   ###############
+##############################################################
+
+# Génère un nuage de points uniforme grâce au diagramme de Voronoi
 def generate_grid(N, patch_size):
 
     # Création des points de manière aléatoire
@@ -31,6 +33,7 @@ def generate_grid(N, patch_size):
     relaxed_points, _ = lloyd_relaxation(initial_points, max_iter,seuil_convergence,boundary)
     
     return relaxed_points
+
 
 # Fonction pour visualiser les niveaux de gris
 def visualiser_niveaux():

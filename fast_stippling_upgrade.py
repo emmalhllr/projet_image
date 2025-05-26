@@ -6,17 +6,17 @@ import cv2
 ###############     CHOIX DES PARAMETRES   ###################
 ##############################################################
 
-PATCH_SIZE = 2  # Taille des patchs (en pixels)
-MAX_STIPPLES = 3  # Nb de points pour le niveau noir 
-LEVELS = 80  # Nb de niveaux de gris
-STIPPLE_LIBRARY = {}  # Dictionnaire pours stocker les différents points suivant le niveau
+PATCH_SIZE = 2                  # Taille des patchs (en pixels)
+MAX_STIPPLES = 3                # Nb de points pour le niveau noir 
+LEVELS = 80                     # Nb de niveaux de gris
+STIPPLE_LIBRARY = {}            # Dictionnaire pours stocker les différents points suivant le niveau
 
 # Générer des points uniformes
 def generate_stipple_points_uniform(N, patch_size):
     points = np.random.rand(N, 2) * patch_size
     return points
 
-#Pre calcul
+# Pre calcul avec des points alétoires uniformes
 def precompute_stipple_levels():
     for i in range(LEVELS):
         t = i / (LEVELS - 1)

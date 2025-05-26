@@ -44,7 +44,7 @@ def initialisation_points(nb_points, densite_image, rejection_power=1.0):
 
     return points
 
-# Evolution du mouvement
+# Evolution du mouvement (critère d'arrët)
 @njit(parallel=True)
 def mouvement_moyen(old_points, new_points):
     total = 0.0
@@ -138,7 +138,14 @@ if __name__ == '__main__':
         ax.set_xticks([])
         ax.set_ylim([ymin, ymax])
         ax.set_yticks([])
-        scatter = ax.scatter(points[:, 0], points[:, 1], s=1, facecolor="k", edgecolor="None")
+        
+        # Récupération de la couleur des pixels sur l'image initiale pour l'affichage
+        Pi = points.astype(int)
+        X = np.maximum(np.minimum(Pi[:, 0], densite_image.shape[1]-1), 0)
+        Y = np.maximum(np.minimum(Pi[:, 1], densite_image.shape[0]-1), 0)
+        image_rgb = image_rgb[::-1, :]
+        colors = image_rgb[Y, X] 
+        scatter = ax.scatter(points[:, 0], points[:, 1], s=1, facecolor=colors, edgecolor="None") 
 
         # Renforcement de la densité dans le calcul des centroides
         if args.densite_centroide != 1.0:
@@ -195,6 +202,7 @@ if __name__ == '__main__':
         ax.set_xticks([])
         ax.set_ylim([ymin, ymax])
         ax.set_yticks([])
+        # Récupération de la couleur des pixels sur l'image initiale pour l'affichage
         Pi = points.astype(int)
         X = np.maximum(np.minimum(Pi[:, 0], densite_image.shape[1]-1), 0)
         Y = np.maximum(np.minimum(Pi[:, 1], densite_image.shape[0]-1), 0)

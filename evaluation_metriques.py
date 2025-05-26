@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 import mahotas
 from scipy.ndimage import gaussian_filter
 
-def compute_texture_correlation(img1, img2, distances=[1], angles=[0]):
+def compute_texture_correlation(img1, img2):
     img1 = img_as_ubyte(img1)
     img2 = img_as_ubyte(img2)
     
