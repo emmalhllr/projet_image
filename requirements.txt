@@ -1,0 +1,13 @@
+Version de ptython conseillée >= 3.7
+
+Installation des bibliothèque nécessaires:
+
+pip install numpy
+pip install matplotlib
+pip opencv
+pip install numba
+pip install tqdm
+pip install scipy
+pip install skimage
+pip install mahotas
+pip install joblib
