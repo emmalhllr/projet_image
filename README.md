@@ -7,8 +7,7 @@ https://www.cs.ubc.ca/labs/imager/tr/2002/secord2002b/secord.2002b.pdf
 
 ## Prérequis
 
-Python ≥ 3.7  
-Bibliothèques nécessaires :  pip install numpy matplotlib opencv-python numba tqdm
+L'ensemble du code de ce projet est en Python. Assurez vous d'avoir les librairies nécessaires en lisant le fichier requirements.txt
 
 # Generating Centroidal Voronoi Diagrams
 
@@ -175,3 +174,15 @@ Le script fournit automatiquement plusieurs visualisations pour interpréter les
    ```python
    ref_img_path = 'images/nom_image.png'
    stippling_img_path = 'resultats/stippling/nom_image_stippling.png'
+
+## Copyright
+La plupart des affichages graphiques et animations ont été réalisés avec l'IA Claude d'Antropic.
+
+Sites et vidéos que nous avons consulté pour réaliser ce projet (Attention elles sont dans d'autres langages):
+- https://www.youtube.com/watch?v=Bxdt6T_1qgc
+- https://observablehq.com/@real-john-cheung/weighted-voronoi-stippling
+- https://observablehq.com/@mbostock/voronoi-stippling
+- https://observablehq.com/@mbostock/lloyds-algorithm
+- https://www.bitbanging.space/posts/lloyds-algorithm
+
+
