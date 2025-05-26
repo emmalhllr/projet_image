@@ -129,56 +129,49 @@ resultats/fast_stippling/fast_stippling_upgrade_<nom>.png
 
 # Evaluation of the stippling with metrics
 
-Cette partie a pour objectif d'évaluer la qualité, de manière quantitative, les résultats obtenus sur les stippling d'images en noir et blanc. On considère les métriques d'évaluation suivantes:
+Cette section vise à évaluer la qualité du stippling (tramage par points) d’images en noir et blanc à l’aide de différentes métriques objectives.
 
 ## Métriques Globales
 
-- **MSE – Erreur quadratique moyenne** afin de mesurer la différence globale d'intensité entre l'image originale et le stippling.
-  - Faible MSE = bonne reproduction globale des tons (densité de points bien ajustée).
-  - MSE élevée = écart significatif dans la densité ou distribution des points.
+- **Corrélation de texture**  
+  Compare les textures de l’image originale et de la carte de densité du stippling via l’analyse de la matrice de cooccurrence et du contraste.  
+  - ✅ Corrélation proche de 1 : reproduction fidèle des motifs texturaux.  
+  - ❌ Corrélation faible : perte ou altération des textures.
 
-- **SSIM – Indice de similarité structurelle** afin d'évaluer la ressemblance perceptive entre l'image originale et l'image en stippling en prenant en compte la luminance, le contraste et la structure locale.
-  - SSIM proche de 1 = le stippling recrée fidèlement la perception de l'image
-  - SSIM faible = perte de détails structurels importants
-
-- **Distance de Chamfer** afin d'évaluer la proximité géométrique entre deux ensembles de points 
-  - Distance de Chamfer faible = bonne correspondance entre les formes.
-  - Distance de Chamfer grande = les ensembles sont dissemblables.
-
-- **Corrélation de texture** afin de comparer les textures entre l'image de référence et celle en stippling en analysant la matrice de cooccurrence pour extraire des propriétés de texture comme le contraste, puis calcule la corrélation entre les deux images.
-  - Corrélation proche de 1 = le stippling a reproduit les motifs texturaux de l'image
-  - Corrélation faible ou négative = perte ou inversion de textures
-
-- **Comparaison d'histogrammes** pour évaluer si la distribution globale des points de stippling correspond bien à la distribution des intensités dans l'image originale.
-  - Différence d'histogrammes faible = la densité des points correspond bien à l'intensité des pixels dans l'image originale
-  - Différence élevée = mauvaise correspondance entre la distribution des points et les valeurs de l'image
+- **Comparaison d’histogrammes**  
+  Compare la distribution des intensités de l’image originale avec celle de la densité des points.  
+  - ✅ Score proche de 0 : bonne correspondance globale.  
+  - ❌ Score élevé : inadéquation entre densité de points et intensité de l’image.
 
 ## Métriques Locales
 
-- **MSE et MAE locales** calculées sur des fenêtres locales pour identifier précisément les zones où le stippling ne correspond pas bien à l'image originale.
-  - Permet de visualiser une carte d'erreur locale pour détecter les régions sur/sous-représentées.
+- **MSE locale (Erreur quadratique moyenne)**  
+  Mesure l’écart local entre les moyennes des intensités de l’image originale et de la carte de densité.
 
-- **Carte SSIM locale** qui montre la similarité structurelle locale entre l'image originale et la carte de densité des points.
-  - Aide à identifier précisément les zones où la structure n'est pas bien préservée.
+- **MAE locale (Erreur absolue moyenne)**  
+  Similaire à la MSE mais sans mise au carré des erreurs, plus robuste aux écarts extrêmes.
 
-- **Erreur de Lloyd** (centrage des cellules de Voronoï) afin d'évaluer la régularité et la qualité géométrique du diagramme de Voronoï sous-jacent au stippling. On calcule l'erreur entre chaque générateur de cellule (point de stippling) et le centroïde de sa cellule de Voronoï.
-  - Erreur faible = bon centrage, stippling homogène.
-  - Erreur élevée = distribution sous-optimale, points mal positionnés.
+- **Carte SSIM locale**  
+  Visualise la similarité structurelle locale entre l’image originale et la carte de densité du stippling.  
+  - ✅ SSIM proche de 1 : bonne conservation des structures locales.  
+  - ❌ SSIM faible : dégradation locale significative.
 
-## Visualisations
+## Visualisations Générées
 
-Le script génère plusieurs visualisations pour faciliter l'interprétation des résultats :
+Le script fournit automatiquement plusieurs visualisations pour interpréter les résultats :
 
-1. **Vue d'ensemble** : image originale, image stippling rasterisée, carte de densité des points, et points de stippling superposés sur l'image originale.
-2. **Comparaison d'histogrammes** : histogrammes de l'image originale inversée et de la carte de densité, ainsi que leur différence.
-3. **Analyse locale** : moyennes locales de l'image originale et de la carte de densité, ainsi que la carte d'erreur locale.
-4. **Carte SSIM locale** : visualisation des zones de similarité structurelle.
-5. **Heatmap d'erreur globale** : différence absolue entre l'image originale inversée et la carte de densité.
+1. **Images comparatives** : image originale vs. carte de densité du stippling.
+2. **Comparaison d’histogrammes** : histogrammes normalisés + différence absolue.
+3. **Carte d’erreur locale** : zones sur/sous-représentées.
+4. **Carte SSIM locale** : carte des similarités structurelles.
+5. **Diagnostics supplémentaires** :
+   - Histogrammes bruts des deux images.
+   - Extraction des points de stippling à différents seuils.
+   - Cartes de densité générées avec plusieurs valeurs de `sigma`.
 
-Pour utiliser ces métriques, lancez le script `evaluation_metriques.py`.
+## Utilisation
 
-À la fin du script, renseignez `ref_img_path` et `stippling_img_path` qui sont respectivement les chemins de l'image de référence en noir et blanc et de l'image en stippling. Les images à tester se trouvent dans le répertoire `images` et les résultats des stippling se trouvent dans le répertoire `résultats/stippling`.
-
-L'exécution affichera les différentes métriques dans le terminal et générera toutes les visualisations mentionnées ci-dessus.
-
-
+1. Ouvrir le fichier `evaluation_metriques.py` et modifier les chemins d’entrée :
+   ```python
+   ref_img_path = 'images/nom_image.png'
+   stippling_img_path = 'resultats/stippling/nom_image_stippling.png'
