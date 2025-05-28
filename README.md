@@ -9,7 +9,7 @@ https://www.cs.ubc.ca/labs/imager/tr/2002/secord2002b/secord.2002b.pdf
 
 L'ensemble du code de ce projet est en Python. Assurez vous d'avoir les librairies nécessaires en lisant le fichier requirements.txt
 
-# Generating Centroidal Voronoi Diagrams
+## Generating Centroidal Voronoi Diagrams
 
 L'objectif de cette section est de générer un diagramme de Voronoï centroïdal à partir d'un nuage de points quelconque.
 On obtient ainsi un diagramme de Voronoï dans lequel le centre de chaque cellule coïncide avec le centroïde des points qu'elle contient.
@@ -32,7 +32,7 @@ A la fin du script, on obtient:
 
 - Une animation gif montrant le "centrage" itération par itération du diagramme de voronoi initial sauvegardé au chemin suivant: 'animations/animation_centroidal_voronoi_diagramme.gif'
 
-# Stippling with Weighted Centroidal Voronoi Diagrams
+## Stippling with Weighted Centroidal Voronoi Diagrams
 
 Cette section implémente un algorithme de pointillisme automatique basé sur les diagrammes de Voronoï centroïdaux pondérés. À partir d’une image (en niveaux de gris ou couleur), il génère une répartition de points (stipples) qui respecte les variations de densité tonale de l’image.
 
@@ -83,15 +83,23 @@ Les fichiers de sortie sont enregistrés dans le dossier `resultats/stippling` s
 
 Exemples de lignes de commande pour obtenir les résultats de notre présentation:
 
-- python stippling_weighted_centroidal_voronoi_diagramm.py images/figure.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (12.0, 12.0) --affichage_intermediaire --densite_centroide 2 --figsize 5.12 --min_distance 2e-3
+```bash
+python stippling_weighted_centroidal_voronoi_diagramm.py images/figure.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points 12.0 12.0 --affichage_intermediaire --densite_centroide 2  --min_distance 2e-3
+```
 
-- python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (10.0, 10.0) --affichage_intermediaire --densite_centroide 1.5 --figsize 13.0 --min_distance 5e-3
+```bash
+python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 1000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points 10.0 10.0 --affichage_intermediaire --densite_centroide 1.5  --min_distance 5e-3
+```
 
-- python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 5000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points (7.0, 7.0) --affichage_final --densite_centroide 1.3 --figsize 13.0 --min_distance 3e-3
+```bash
+python stippling_weighted_centroidal_voronoi_diagramm.py images/shoe_1300x1300_org.png --nb_points 5000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 70 --taille_points 7.0 7.0 --affichage_final --densite_centroide 1.3 --min_distance 3e-3
+```
 
-- python stippling_weighted_centroidal_voronoi_diagramm.py images/plant4h.png --nb_points 20000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 90 --taille_points (6.0, 6.0) --affichage_final --densite_centroide 1.5 --figsize 9.6 --min_distance 1.5e-3
+```bash
+python stippling_weighted_centroidal_voronoi_diagramm.py images/plant4h.png --nb_points 20000 --max_iter 150 --seuil_convergence 1e-4 --seuil_niveau_gris 90 --taille_points 6.0 6.0 --affichage_final --densite_centroide 1.5 --min_distance 1.5e-3
+```
 
-# Fast Stipplings
+## Fast Stipplings
 
 Cette section décrit une méthode rapide de pointillisme utilisant des heuristiques et des approximations pour générer des diagrammes de Voronoï centroïdaux sans itérations coûteuses, ce qui permet de produire des résultats visuellement satisfaisants avec un temps de calcul réduit.
 
@@ -126,11 +134,11 @@ resultats/fast_stippling/fast_stippling_voronoi_<nom>.png
 ou
 resultats/fast_stippling/fast_stippling_upgrade_<nom>.png
 
-# Evaluation of the stippling with metrics
+## Evaluation of the stippling with metrics
 
 Cette section vise à évaluer la qualité du stippling (tramage par points) d’images en noir et blanc à l’aide de différentes métriques objectives.
 
-## Métriques Globales
+### Métriques Globales
 
 - **Corrélation de texture**  
   Compare les textures de l’image originale et de la carte de densité du stippling via l’analyse de la matrice de cooccurrence et du contraste.  
@@ -142,7 +150,7 @@ Cette section vise à évaluer la qualité du stippling (tramage par points) d�
   - ✅ Score proche de 0 : bonne correspondance globale.  
   - ❌ Score élevé : inadéquation entre densité de points et intensité de l’image.
 
-## Métriques Locales
+### Métriques Locales
 
 - **MSE locale (Erreur quadratique moyenne)**  
   Mesure l’écart local entre les moyennes des intensités de l’image originale et de la carte de densité.
@@ -155,7 +163,7 @@ Cette section vise à évaluer la qualité du stippling (tramage par points) d�
   - ✅ SSIM proche de 1 : bonne conservation des structures locales.  
   - ❌ SSIM faible : dégradation locale significative.
 
-## Visualisations Générées
+### Visualisations Générées
 
 Le script fournit automatiquement plusieurs visualisations pour interpréter les résultats :
 
@@ -168,14 +176,16 @@ Le script fournit automatiquement plusieurs visualisations pour interpréter les
    - Extraction des points de stippling à différents seuils.
    - Cartes de densité générées avec plusieurs valeurs de `sigma`.
 
-## Utilisation
+### Utilisation
 
 1. Ouvrir le fichier `evaluation_metriques.py` et modifier les chemins d’entrée :
    ```python
    ref_img_path = 'images/nom_image.png'
    stippling_img_path = 'resultats/stippling/nom_image_stippling.png'
+   ```
 
 ## Copyright
+
 La plupart des affichages graphiques et animations ont été réalisés avec l'IA Claude d'Antropic.
 
 Sites et vidéos que nous avons consulté pour réaliser ce projet (Attention elles sont dans d'autres langages):
@@ -184,5 +194,3 @@ Sites et vidéos que nous avons consulté pour réaliser ce projet (Attention el
 - https://observablehq.com/@mbostock/voronoi-stippling
 - https://observablehq.com/@mbostock/lloyds-algorithm
 - https://www.bitbanging.space/posts/lloyds-algorithm
-
-
